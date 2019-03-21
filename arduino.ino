@@ -1,3 +1,6 @@
+#include <ESP8266WiFi.h>
+const char* ssid = "********";
+const char* password = "*********";  
 // Motor 1 pins
 int enA = 16; //D0
 int a0 = 5;  //D1  
@@ -6,6 +9,7 @@ int a1 = 4;  //D2
 int enB = 0; //D3
 int a2 = 2;  //D4  
 int a3 = 14;  //D5
+bool Locked = false; // Is lock locked
 void motorsOff() {
   analogWrite(enA, 0);
   analogWrite(enB, 0);
@@ -31,6 +35,7 @@ void lock() {
     }
   delay(500);
   motorsOff();
+  Locked = !Locked;
 }
 void setup() {
   pinMode(enA, OUTPUT); // set all motor control pins as outputs
@@ -40,7 +45,14 @@ void setup() {
   pinMode(a2, OUTPUT);     
   pinMode(a3, OUTPUT);
   motorsOff();
+  WiFi.begin(ssid, password); //connect to wifi
+  while (WiFi.status() != WL_CONNECTED) { //wait for wifi to connect
+    delay(500);
+  }
+  server.begin(); //start the server
 }
 void loop() {
-  lock()
+  WiFiClient client = server.available(); //Has client connected
+  if (!client) {
+    return;
 }
